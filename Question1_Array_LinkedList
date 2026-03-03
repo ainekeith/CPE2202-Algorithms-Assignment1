@@ -1,1 +1,188 @@
 
+#include <Arduino.h>
+
+#define MAX_PLAYLIST_SIZE 10
+
+// ==================== TYPE DEFINITIONS ====================
+struct Song {
+  char title[50];
+  char artist[50];
+  int duration; // in seconds
+};
+
+// --- Array-based Playlist Implementation ---
+struct ArrayList {
+  Song songs[MAX_PLAYLIST_SIZE];
+  int size = 0;
+};
+
+struct SongNode {
+  Song song;
+  SongNode* next;
+};
+
+struct LinkedList {
+  SongNode* head = nullptr;
+};
+
+// ==================== FUNCTION PROTOTYPES ====================
+// Array list functions
+void addSong(ArrayList* list, const Song& newSong);
+void removeSong(ArrayList* list, int index);
+void displayPlaylist(const ArrayList* list);
+
+// Linked list functions
+void addSong(LinkedList* list, const Song& newSong);
+void removeSong(LinkedList* list, int index);
+void displayPlaylist(const LinkedList* list);
+
+// ==================== ARRAY IMPLEMENTATION ====================
+
+// Add a song to the end of the array list. Check for overflow.
+void addSong(ArrayList* list, const Song& newSong) {
+  if (list->size >= MAX_PLAYLIST_SIZE) {
+    Serial.println("Playlist full! Cannot add more songs.");
+    return;
+  }
+
+  list->songs[list->size] = newSong;
+  list->size++;
+}
+
+// Remove a song at a given index (0-based). Shift elements left.
+void removeSong(ArrayList* list, int index) {
+  if (index < 0 || index >= list->size) {
+    Serial.println("Invalid index.");
+    return;
+  }
+
+  for (int i = index; i < list->size - 1; i++) {
+    list->songs[i] = list->songs[i + 1];
+  }
+
+  list->size--;
+}
+
+// Print all songs in the array list.
+void displayPlaylist(const ArrayList* list) {
+  for (int i = 0; i < list->size; i++) {
+    Serial.print(i);
+    Serial.print(". ");
+    Serial.print(list->songs[i].title);
+    Serial.print(" - ");
+    Serial.print(list->songs[i].artist);
+    Serial.print(" (");
+    Serial.print(list->songs[i].duration);
+    Serial.println(" sec)");
+  }
+}
+
+// ==================== LINKED LIST IMPLEMENTATION ====================
+
+// Add a song to the end of the linked list.
+void addSong(LinkedList* list, const Song& newSong) {
+  SongNode* newNode = new SongNode;
+  newNode->song = newSong;
+  newNode->next = nullptr;
+
+  if (list->head == nullptr) {
+    list->head = newNode;
+    return;
+  }
+
+  SongNode* current = list->head;
+  while (current->next != nullptr) {
+    current = current->next;
+  }
+
+  current->next = newNode;
+}
+
+// Remove a song at a given index (0-based).
+void removeSong(LinkedList* list, int index) {
+  if (list->head == nullptr) {
+    Serial.println("List empty.");
+    return;
+  }
+
+  if (index == 0) {
+    SongNode* temp = list->head;
+    list->head = temp->next;
+    delete temp;
+    return;
+  }
+
+  SongNode* current = list->head;
+  for (int i = 0; i < index - 1 && current->next != nullptr; i++) {
+    current = current->next;
+  }
+
+  if (current->next == nullptr) {
+    Serial.println("Invalid index.");
+    return;
+  }
+
+  SongNode* temp = current->next;
+  current->next = temp->next;
+  delete temp;
+}
+
+// Print all songs in the linked list.
+void displayPlaylist(const LinkedList* list) {
+  SongNode* current = list->head;
+  int index = 0;
+
+  while (current != nullptr) {
+    Serial.print(index);
+    Serial.print(". ");
+    Serial.print(current->song.title);
+    Serial.print(" - ");
+    Serial.print(current->song.artist);
+    Serial.print(" (");
+    Serial.print(current->song.duration);
+    Serial.println(" sec)");
+
+    current = current->next;
+    index++;
+  }
+}
+
+// ==================== SETUP ====================
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  // Test Array-based Playlist
+  Serial.println("=== Testing Array Playlist ===");
+  ArrayList myArrayPlaylist;
+  addSong(&myArrayPlaylist, {"Song A1", "Artist 1", 180});
+  addSong(&myArrayPlaylist, {"Song B2", "Artist 2", 240});
+  addSong(&myArrayPlaylist, {"Song C3", "Artist 1", 200});
+  displayPlaylist(&myArrayPlaylist);
+
+  removeSong(&myArrayPlaylist, 1);
+  Serial.println("After removing index 1:");
+  displayPlaylist(&myArrayPlaylist);
+
+  // Test Linked List-based Playlist
+  Serial.println("\n=== Testing Linked List Playlist ===");
+  LinkedList myLinkedListPlaylist;
+  addSong(&myLinkedListPlaylist, {"Song X1", "Artist X", 195});
+  addSong(&myLinkedListPlaylist, {"Song Y2", "Artist Y", 225});
+  addSong(&myLinkedListPlaylist, {"Song Z3", "Artist Z", 215});
+  displayPlaylist(&myLinkedListPlaylist);
+
+  removeSong(&myLinkedListPlaylist, 1);
+  Serial.println("After removing index 1:");
+  displayPlaylist(&myLinkedListPlaylist);
+
+  // Clean up linked list nodes to avoid memory leak
+  SongNode* current = myLinkedListPlaylist.head;
+  while (current != nullptr) {
+    SongNode* temp = current;
+    current = current->next;
+    delete temp;
+  }
+}
+
+void loop() {}
