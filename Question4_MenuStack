@@ -1,1 +1,83 @@
+#include <Arduino.h>
 
+#define STACK_SIZE 5
+
+// ==================== SONG STRUCT ====================
+struct Song {
+  String title;
+};
+
+// ==================== STACK STRUCT ====================
+struct Stack {
+  Song songs[STACK_SIZE];
+  int top = -1;  // -1 means empty
+};
+
+// ==================== FUNCTIONS ====================
+
+bool push(Stack &stack, Song song) {
+  if (stack.top >= STACK_SIZE - 1) {
+    Serial.println("Stack Overflow! Cannot add more songs.");
+    return false;
+  }
+
+  stack.top++;
+  stack.songs[stack.top] = song;
+  return true;
+}
+
+bool pop(Stack &stack, Song &removedSong) {
+  if (stack.top < 0) {
+    Serial.println("Stack Underflow! Nothing to undo.");
+    return false;
+  }
+
+  removedSong = stack.songs[stack.top];
+  stack.top--;
+  return true;
+}
+
+void displayStack(const Stack &stack) {
+  Serial.println("Current Stack:");
+
+  for (int i = stack.top; i >= 0; i--) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(stack.songs[i].title);
+  }
+
+  Serial.println();
+}
+
+// ==================== SETUP ====================
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  Serial.println("=== Stack Undo Demo ===");
+
+  Stack stack;
+
+  // Push songs
+  push(stack, {"Song A"});
+  push(stack, {"Song B"});
+  push(stack, {"Song C"});
+  displayStack(stack);
+
+  // Undo (pop)
+  Song removed;
+  if (pop(stack, removed)) {
+    Serial.print("Undo: Removed ");
+    Serial.println(removed.title);
+  }
+
+  displayStack(stack);
+
+  // Test underflow
+  pop(stack, removed);
+  pop(stack, removed);
+  pop(stack, removed);  // This should trigger underflow
+}
+
+void loop() {
+}
