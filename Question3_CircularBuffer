@@ -1,1 +1,64 @@
+#include <Arduino.h>
 
+#define BUFFER_SIZE 5
+
+// ==================== DATA STRUCT ====================
+struct SensorData {
+  float temperature;
+};
+
+// ==================== CIRCULAR BUFFER ====================
+struct CircularBuffer {
+  SensorData buffer[BUFFER_SIZE];
+  int head = 0;   // Points to next write position
+  int count = 0;  // Number of elements stored
+};
+
+// ==================== FUNCTIONS ====================
+
+void addReading(CircularBuffer &cb, float temp) {
+  cb.buffer[cb.head].temperature = temp;
+
+  cb.head = (cb.head + 1) % BUFFER_SIZE;
+
+  if (cb.count < BUFFER_SIZE) {
+    cb.count++;
+  }
+}
+
+void displayBuffer(const CircularBuffer &cb) {
+  Serial.println("Current Buffer Contents:");
+
+  for (int i = 0; i < cb.count; i++) {
+    int index = (cb.head - cb.count + i + BUFFER_SIZE) % BUFFER_SIZE;
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(cb.buffer[index].temperature);
+  }
+
+  Serial.println();
+}
+
+// ==================== SETUP ====================
+void setup() {
+  Serial.begin(115200);
+  while (!Serial);
+
+  Serial.println("=== Circular Buffer Demo ===");
+
+  CircularBuffer cb;
+
+  for (int i = 0; i < 8; i++) {
+    float temp = random(200, 300) / 10.0;
+    Serial.print("Adding temperature: ");
+    Serial.println(temp);
+
+    addReading(cb, temp);
+    displayBuffer(cb);
+
+    delay(500);
+  }
+}
+
+void loop() {
+}
