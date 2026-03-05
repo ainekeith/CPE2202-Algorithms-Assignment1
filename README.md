@@ -1,6 +1,27 @@
 # CPE2202-Algorithms-Assignment1
 Data Structures and algorithms assignment
-https://wokwi.com/projects/457464036023669761
+# CPE2202 – Homework Assignment 1 
+Group Members : 
+- Ainebyona Keith - 2401600230 (Leader)
+- Opuche Samson - 2401600180
+- Ojuka Francis - 2401600425
+- Gidongo Dave  - 2401600069
+- Bua Howard    - 2401600234 
+
+## Wokwi Simulation Links
+
+- Question 1 – Array-Based Playlist:
+ https://wokwi.com/projects/457464036023669761
+
+- Question 2 – Memory Anaylsis:
+https://wokwi.com/projects/457464521880485889
+
+- Question 3: - Circular buffer
+ https://wokwi.com/projects/457565183904574465
+  
+- Question 4: - Stack  Undo
+https://wokwi.com/projects/457565183904574465
+ 
 📌 ESP32 Data Structures Implementation
 📖 Overview
 
